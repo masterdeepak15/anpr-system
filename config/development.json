@@ -1,0 +1,9 @@
+{
+  "environment": "development",
+  "frame_width": 640,
+  "frame_height": 480,
+  "api_port": 5000,
+  "log_level": "DEBUG",
+  "target_fps": 3.0,
+  "max_cameras": 5
+}

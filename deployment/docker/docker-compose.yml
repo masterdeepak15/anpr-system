@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  anpr-system:
+    build: 
+      context: ../..
+      dockerfile: deployment/docker/Dockerfile
+    container_name: anpr_system
+    restart: unless-stopped
+    
+    ports:
+      - "5000:5000"
+    
+    volumes:
+      - ../../models:/app/models
+      - ../../data:/app/data
+      - ../../logs:/app/logs
+      - ../../config.json:/app/config.json
+    
+    environment:
+      - LOG_LEVEL=INFO
+      - API_HOST=0.0.0.0
+      - API_PORT=5000
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 4G
+        reservations:
+          cpus: '2'
+          memory: 2G
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  default:
+    name: anpr-network

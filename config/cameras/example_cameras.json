@@ -1,0 +1,20 @@
+{
+  "cameras": [
+    {
+      "camera_id": "cam_entrance_01",
+      "name": "Main Entrance",
+      "rtsp_url": "rtsp://admin:password@192.168.1.100:554/stream1",
+      "location": "Building A - Entrance",
+      "frame_skip": 2,
+      "enabled": true
+    },
+    {
+      "camera_id": "cam_exit_01",
+      "name": "Main Exit",
+      "rtsp_url": "rtsp://admin:password@192.168.1.101:554/stream1",
+      "location": "Building A - Exit",
+      "frame_skip": 2,
+      "enabled": true
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+[Unit]
+Description=ANPR System Service
+After=network.target
+
+[Service]
+Type=simple
+User=anpr
+Group=anpr
+WorkingDirectory=/opt/anpr
+Environment="PATH=/opt/anpr/venv/bin"
+ExecStart=/opt/anpr/venv/bin/python main.py --log-file /var/log/anpr/anpr.log
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
