@@ -235,7 +235,28 @@ sudo journalctl -u anpr -f
   "max_cpu_percent": 80.0,
   "aggregation_window": 5,
   "min_occurrences": 3,
-  "vehicle_confidence": 0.5
+  "vehicle_confidence": 0.5,
+  "use_plate_ml": true,
+  
+  "_comment_tracking": "Vehicle Tracking Configuration",
+  "enable_tracking": true,
+  "tracking_max_disappeared": 30,
+  "tracking_iou_threshold": 0.3,
+  
+  "_comment_incidents": "Incident Detection Configuration",
+  "enable_incident_detection": true,
+  "enable_helmet_detection": true,
+  "enable_seatbelt_detection": true,
+  "enable_wrong_way_detection": true,
+  "enable_triple_riding_detection": true,
+  "helmet_model_path": "models/helmet_detector.onnx",
+  "seatbelt_model_path": "models/seatbelt_detector.onnx",
+  
+  "_comment_video_buffer": "Video Buffer Configuration",
+  "video_buffer_seconds": 10,
+  "incident_video_before_seconds": 5,
+  "incident_video_after_seconds": 5,
+  "incident_output_dir": "incidents"
 }
 ```
 
