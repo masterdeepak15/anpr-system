@@ -3,7 +3,7 @@
 import cv2
 import numpy as np
 from collections import deque
-from typing import Optional, List
+from typing import Optional, List, Dict
 import threading
 import time
 from pathlib import Path
