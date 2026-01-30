@@ -4,7 +4,7 @@ import threading
 import time
 import signal
 import sys
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, Tuple
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 import logging
 import multiprocessing
