@@ -72,7 +72,8 @@ class IncidentDetector:
         
         self.helmet_detector = None
         self.seatbelt_detector = None
-        
+        self.logger = logging.getLogger("IncidentDetector")
+
         # Load models if provided
         if helmet_model_path and self.enable_helmet:
             self._load_helmet_detector(helmet_model_path)
@@ -80,7 +81,6 @@ class IncidentDetector:
         if seatbelt_model_path and self.enable_seatbelt:
             self._load_seatbelt_detector(seatbelt_model_path)
         
-        self.logger = logging.getLogger("IncidentDetector")
     
     def _load_helmet_detector(self, model_path: str) -> bool:
         """Load helmet detection model"""
