@@ -1,6 +1,6 @@
 """Flask API server for ANPR system"""
 
-from flask import Flask, request, jsonify, Response
+from flask import Flask, request, jsonify, Response, render_template
 from flask_cors import CORS
 import json
 import time
@@ -54,7 +54,11 @@ class ANPRAPIServer:
     
     def _register_routes(self) -> None:
         """Register all API routes"""
-        
+
+        @self.app.route("/")
+        def home():
+            return render_template("index.html")   
+             
         # Health check
         @self.app.route('/health', methods=['GET'])
         def health():
