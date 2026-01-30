@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ANPR System - Admin Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .status-bar {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-indicator.online { background: #10b981; }
+        .status-indicator.offline { background: #ef4444; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            color: #333;
+            font-size: 20px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .stat-card {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 48px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 10px 0;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .btn-danger {
+            background: #ef4444;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-success {
+            background: #10b981;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        th {
+            background: #f9fafb;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        tr:hover {
+            background: #f9fafb;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .upload-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .upload-area {
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            background: #f9fafb;
+            border-color: #5568d3;
+        }
+
+        .upload-area.dragover {
+            background: #eef2ff;
+            border-color: #5568d3;
+        }
+
+        #imagePreview {
+            max-width: 100%;
+            max-height: 400px;
+            margin: 20px 0;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .result-box {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .vehicle-result {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+        }
+
+        .confidence-bar {
+            background: #e5e7eb;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 5px 0;
+        }
+
+        .confidence-fill {
+            background: #10b981;
+            height: 100%;
+            transition: width 0.3s;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            max-width: 600px;
+            margin: 100px auto;
+            padding: 30px;
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #374151;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .live-feed {
+            background: #1f2937;
+            color: white;
+            padding: 20px;
+            border-radius: 5px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+
+        .live-feed-item {
+            padding: 5px 0;
+            border-bottom: 1px solid #374151;
+        }
+
+        .live-feed-time {
+            color: #9ca3af;
+        }
+
+        .live-feed-plate {
+            color: #10b981;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🚗 ANPR System - Admin Panel</h1>
+            <div class="status-bar">
+                <div class="status-item">
+                    <div class="status-indicator online" id="systemStatus"></div>
+                    <span>System: <strong id="systemStatusText">Online</strong></span>
+                </div>
+                <div class="status-item">
+                    <span>Cameras: <strong id="cameraCount">0</strong></span>
+                </div>
+                <div class="status-item">
+                    <span>Detections Today: <strong id="detectionsToday">0</strong></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="grid">
+            <div class="card stat-card">
+                <div class="stat-label">Total Frames</div>
+                <div class="stat-value" id="totalFrames">0</div>
+            </div>
+            <div class="card stat-card">
+                <div class="stat-label">Total Plates</div>
+                <div class="stat-value" id="totalPlates">0</div>
+            </div>
+            <div class="card stat-card">
+                <div class="stat-label">Avg Confidence</div>
+                <div class="stat-value" id="avgConfidence">0%</div>
+            </div>
+            <div class="card stat-card">
+                <div class="stat-label">CPU Usage</div>
+                <div class="stat-value" id="cpuUsage">0%</div>
+            </div>
+        </div>
+
+        <!-- Image Upload Section -->
+        <div class="upload-section">
+            <h2>📸 Upload Image for Detection</h2>
+            <div class="upload-area" id="uploadArea">
+                <p style="font-size: 48px; margin-bottom: 10px;">📷</p>
+                <p style="color: #666; font-size: 16px;">Drag & drop an image here or click to browse</p>
+                <input type="file" id="imageInput" accept="image/*" style="display: none;">
+            </div>
+            <img id="imagePreview" alt="Preview">
+            
+            <div class="loading" id="uploadLoading">
+                <div class="spinner"></div>
+                <p style="margin-top: 10px; color: #666;">Processing image...</p>
+            </div>
+
+            <div class="result-box" id="uploadResult">
+                <h3>Detection Results</h3>
+                <div id="vehicleResults"></div>
+            </div>
+        </div>
+
+        <!-- Cameras and Recent Detections -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <!-- Camera Management -->
+            <div class="card">
+                <h2>📹 Active Cameras</h2>
+                <button class="btn" onclick="showAddCameraModal()" style="margin-bottom: 15px;">+ Add Camera</button>
+                <table id="camerasTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <!-- Recent Detections -->
+            <div class="card">
+                <h2>🎯 Recent Detections</h2>
+                <table id="detectionsTable">
+                    <thead>
+                        <tr>
+                            <th>Plate</th>
+                            <th>Camera</th>
+                            <th>Confidence</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Live Feed -->
+        <div class="card" style="margin-top: 20px;">
+            <h2>📡 Live Event Feed</h2>
+            <div class="live-feed" id="liveFeed">
+                <div class="live-feed-item">Waiting for events...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Camera Modal -->
+    <div class="modal" id="addCameraModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h2>Add New Camera</h2>
+            <form onsubmit="addCamera(event)">
+                <div class="form-group">
+                    <label>Camera ID:</label>
+                    <input type="text" id="cameraId" required>
+                </div>
+                <div class="form-group">
+                    <label>Camera Name:</label>
+                    <input type="text" id="cameraName" required>
+                </div>
+                <div class="form-group">
+                    <label>RTSP URL:</label>
+                    <input type="text" id="rtspUrl" placeholder="rtsp://..." required>
+                </div>
+                <div class="form-group">
+                    <label>Location:</label>
+                    <input type="text" id="cameraLocation">
+                </div>
+                <button type="submit" class="btn btn-success">Add Camera</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '';
+        let eventSource;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSystemStatus();
+            loadCameras();
+            loadRecentDetections();
+            connectEventStream();
+            startStatsRefresh();
+            setupImageUpload();
+        });
+
+        // System Status
+        async function loadSystemStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/api/v1/status`);
+                const data = await response.json();
+                
+                document.getElementById('systemStatusText').textContent = data.status;
+                document.getElementById('systemStatus').className = 
+                    `status-indicator ${data.status === 'running' ? 'online' : 'offline'}`;
+                
+                if (data.stats) {
+                    document.getElementById('totalFrames').textContent = 
+                        data.stats.total_frames_processed || 0;
+                    document.getElementById('totalPlates').textContent = 
+                        data.stats.total_plates_detected || 0;
+                }
+            } catch (error) {
+                console.error('Error loading status:', error);
+                document.getElementById('systemStatus').className = 'status-indicator offline';
+            }
+        }
+
+        // Load Cameras
+        async function loadCameras() {
+            try {
+                const response = await fetch(`${API_BASE}/api/v1/cameras`);
+                const cameras = await response.json();
+                
+                document.getElementById('cameraCount').textContent = cameras.length;
+                
+                const tbody = document.querySelector('#camerasTable tbody');
+                tbody.innerHTML = '';
+                
+                cameras.forEach(camera => {
+                    const row = tbody.insertRow();
+                    row.innerHTML = `
+                        <td>${camera.camera_id}</td>
+                        <td>${camera.name}</td>
+                        <td>
+                            <span class="badge ${camera.enabled ? 'badge-success' : 'badge-danger'}">
+                                ${camera.enabled ? 'Active' : 'Disabled'}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn" style="padding: 5px 10px; font-size: 12px;" 
+                                    onclick="deleteCamera('${camera.camera_id}')">Delete</button>
+                        </td>
+                    `;
+                });
+            } catch (error) {
+                console.error('Error loading cameras:', error);
+            }
+        }
+
+        // Load Recent Detections
+        async function loadRecentDetections() {
+            try {
+                const response = await fetch(`${API_BASE}/api/v1/results?limit=10`);
+                const results = await response.json();
+                
+                const tbody = document.querySelector('#detectionsTable tbody');
+                tbody.innerHTML = '';
+                
+                results.forEach(result => {
+                    const row = tbody.insertRow();
+                    const time = new Date(result.timestamp * 1000).toLocaleTimeString();
+                    row.innerHTML = `
+                        <td><strong>${result.plate_text}</strong></td>
+                        <td>${result.camera_id}</td>
+                        <td>${(result.confidence * 100).toFixed(1)}%</td>
+                        <td>${time}</td>
+                    `;
+                });
+            } catch (error) {
+                console.error('Error loading detections:', error);
+            }
+        }
+
+        // Event Stream
+        function connectEventStream() {
+            eventSource = new EventSource(`${API_BASE}/api/v1/events/stream`);
+            
+            eventSource.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                
+                if (data.type === 'plate_detected') {
+                    addLiveFeedItem(data);
+                    loadRecentDetections();
+                    loadSystemStatus();
+                }
+            };
+            
+            eventSource.onerror = function(error) {
+                console.error('EventSource error:', error);
+                setTimeout(() => connectEventStream(), 5000);
+            };
+        }
+
+        function addLiveFeedItem(data) {
+            const feed = document.getElementById('liveFeed');
+            const time = new Date(data.timestamp * 1000).toLocaleTimeString();
+            
+            const item = document.createElement('div');
+            item.className = 'live-feed-item';
+            item.innerHTML = `
+                <span class="live-feed-time">[${time}]</span>
+                <span class="live-feed-plate">${data.data.plate_text}</span>
+                - Camera: ${data.data.camera_id}
+                - Confidence: ${(data.data.confidence * 100).toFixed(1)}%
+            `;
+            
+            feed.insertBefore(item, feed.firstChild);
+            
+            // Keep only last 50 items
+            while (feed.children.length > 50) {
+                feed.removeChild(feed.lastChild);
+            }
+        }
+
+        // Image Upload
+        function setupImageUpload() {
+            const uploadArea = document.getElementById('uploadArea');
+            const imageInput = document.getElementById('imageInput');
+            const imagePreview = document.getElementById('imagePreview');
+
+            uploadArea.addEventListener('click', () => imageInput.click());
+
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                const file = e.dataTransfer.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    handleImageUpload(file);
+                }
+            });
+
+            imageInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    handleImageUpload(file);
+                }
+            });
+        }
+
+        async function handleImageUpload(file) {
+            const imagePreview = document.getElementById('imagePreview');
+            const loading = document.getElementById('uploadLoading');
+            const resultBox = document.getElementById('uploadResult');
+
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                imagePreview.src = e.target.result;
+                imagePreview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+
+            // Show loading
+            loading.style.display = 'block';
+            resultBox.style.display = 'none';
+
+            // Upload
+            const formData = new FormData();
+            formData.append('image', file);
+
+            try {
+                const response = await fetch(`${API_BASE}/api/v1/detect/image`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                
+                loading.style.display = 'none';
+                displayDetectionResults(data);
+            } catch (error) {
+                console.error('Error uploading image:', error);
+                loading.style.display = 'none';
+                alert('Error processing image');
+            }
+        }
+
+        function displayDetectionResults(data) {
+            const resultBox = document.getElementById('uploadResult');
+            const vehicleResults = document.getElementById('vehicleResults');
+
+            if (!data.vehicles || data.vehicles.length === 0) {
+                vehicleResults.innerHTML = '<p>No vehicles detected</p>';
+                resultBox.style.display = 'block';
+                return;
+            }
+
+            vehicleResults.innerHTML = '';
+
+            data.vehicles.forEach((vehicle, index) => {
+                const div = document.createElement('div');
+                div.className = 'vehicle-result';
+                
+                const plateInfo = vehicle.plate ? `
+                    <div style="margin-top: 10px;">
+                        <strong>Plate Number:</strong> ${vehicle.plate.text}<br>
+                        <strong>Confidence:</strong> ${(vehicle.plate.confidence * 100).toFixed(1)}%
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" style="width: ${vehicle.plate.confidence * 100}%"></div>
+                        </div>
+                        <strong>Plate Coordinates:</strong> ${JSON.stringify(vehicle.plate.bbox)}
+                    </div>
+                ` : '<div style="margin-top: 10px; color: #999;">No plate detected</div>';
+
+                div.innerHTML = `
+                    <h4>Vehicle #${index + 1}</h4>
+                    <strong>Vehicle Type:</strong> ${vehicle.class_name}<br>
+                    <strong>Confidence:</strong> ${(vehicle.confidence * 100).toFixed(1)}%<br>
+                    <strong>Vehicle Coordinates:</strong> ${JSON.stringify(vehicle.bbox)}
+                    ${plateInfo}
+                `;
+
+                vehicleResults.appendChild(div);
+            });
+
+            resultBox.style.display = 'block';
+        }
+
+        // Camera Management
+        function showAddCameraModal() {
+            document.getElementById('addCameraModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('addCameraModal').style.display = 'none';
+        }
+
+        async function addCamera(event) {
+            event.preventDefault();
+
+            const camera = {
+                camera_id: document.getElementById('cameraId').value,
+                name: document.getElementById('cameraName').value,
+                rtsp_url: document.getElementById('rtspUrl').value,
+                location: document.getElementById('cameraLocation').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/api/v1/cameras`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(camera)
+                });
+
+                if (response.ok) {
+                    closeModal();
+                    loadCameras();
+                    event.target.reset();
+                } else {
+                    alert('Failed to add camera');
+                }
+            } catch (error) {
+                console.error('Error adding camera:', error);
+                alert('Error adding camera');
+            }
+        }
+
+        async function deleteCamera(cameraId) {
+            if (!confirm(`Delete camera ${cameraId}?`)) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/api/v1/cameras/${cameraId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    loadCameras();
+                } else {
+                    alert('Failed to delete camera');
+                }
+            } catch (error) {
+                console.error('Error deleting camera:', error);
+            }
+        }
+
+        // Auto-refresh stats
+        function startStatsRefresh() {
+            setInterval(() => {
+                loadSystemStatus();
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
